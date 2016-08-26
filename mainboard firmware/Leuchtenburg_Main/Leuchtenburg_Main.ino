@@ -68,14 +68,15 @@ int StartWert = 1;
 int DoneFlag = 0;
 
 boolean GewichtChange4 = false;
-
-int G_Schwellwert = G_SchwellwertMin; // Gewichtsänderungen ab Wert * 10g werden registriert
+// Gewichtsänderungen ab Wert * 10g werden registriert
+int G_Schwellwert = G_SchwellwertMin;
 long Waagezeit_inaktiv;   
 
+// Für Pendelsimulation Anzahl der Durchläufe zur Zielposition
+int Durchlauf[5];
 
-int Durchlauf[5];    // Für Pendelsimulation Anzahl der Durchläufe zur Zielposition
-
-int MotorOben = 1;  // aktuell höchster Motor zur Übergabe der Fahrtcharakteristika an Motor4  
+// aktuell höchster Motor zur Übergabe der Fahrtcharakteristika an Motor4  
+int MotorOben = 1;
 
 float a_Ref;
 float a_Aktuell[5];
@@ -446,13 +447,14 @@ else {
 //-----------Begin Statusabfrage (neue SollPositionen für Motoren)------------------- 
 
       // ERROR PRONE: VERY POSSIBLE: "GewichtSumme + Gewicht[4]" SHOULD HAVE A BRACKET!!!
-      if (((GewichtSumme + Gewicht[4] <= G_SchwellwertMin) && (G_Change == 0)) && (StatusNeu != 13)) G_Change = 1; 
+      if (
+          (GewichtSumme + Gewicht[4] <= G_SchwellwertMin) && 
+          (G_Change == 0) && 
+          (StatusNeu != 13)
+          ) { G_Change = 1; }
       
-  
-      if ((G_Change == 1)&&(DoneFlag != 1)){      //Wenn Gewichtsänderung dann Motor-Werte aktualisieren 
-          
-//Music     StartChannelsWaagenSound; //Kanal 1 - 3 anschalten
-//Music     Abhängig vom Faktor Kanal 4 zuschalten
+  //Wenn Gewichtsänderung dann Motor-Werte aktualisieren 
+      if ( (G_Change == 1) && (DoneFlag != 1) ){
           
           if (WaageBeladen >= 3){           
 //SOUND//-------------------------------------------------------------------
@@ -496,24 +498,24 @@ else {
               //SoundZustand(0);    //keine Waage in Benutzung --> Standby Text   
           }
           
-
-          Waagezeit_inaktiv = millis();           //Falls StatusÄnderung Reset Waagezeit_inaktiv (für Restart nach bestimmter Inaktivzeit)     
-          StatusNeu = GetStatus(Gewicht[1], Gewicht[2], Gewicht[3], Gewicht[4]);    //Alle aktuellen Gewichtswerte an Funktion "Getstatus" übergeben
-                                                                                    //Funktion gibt Wert zwischen 1 und 15 zurück (SollPositionen)         
-          if (StatusNeu == 15) StatusNeu = StatusAlt;                           //Wenn Minimalgewicht nicht erreicht Status belassen
-       
-          SetNewStatus(StatusNeu, Gewicht[4]);                                  //Aus Statusnummer jeweilige SollPositionen setzen
+          // Falls StatusÄnderung Reset Waagezeit_inaktiv (für Restart nach bestimmter Inaktivzeit)
+          Waagezeit_inaktiv = millis();
+          // Alle aktuellen Gewichtswerte an Funktion "Getstatus" übergeben
+          StatusNeu = GetStatus(Gewicht[1], Gewicht[2], Gewicht[3], Gewicht[4]);
+          // Funktion gibt Wert zwischen 1 und 15 zurück (SollPositionen)         
+          // Wenn Minimalgewicht nicht erreicht Status belassen
+          if (StatusNeu == 15) StatusNeu = StatusAlt;
+          // Aus Statusnummer jeweilige SollPositionen setzen
+          SetNewStatus(StatusNeu, Gewicht[4]);
           StatusAlt = StatusNeu;
           StatusChange = true;
       
-      
           for (int i=1; i<=4;i++){
-          Durchlauf[i] = 0;        //Für Nachschwingdurchgänge beim Bewegen
+            Durchlauf[i] = 0;        //Für Nachschwingdurchgänge beim Bewegen
           }
-
       }
     
-   //-------------- Sonderfall Rätsel gelöst  
+   // -------------- Sonderfall Rätsel gelöst --------------
       
       else if ((StatusNeu == 14)&&(DoneFlag == 0)){              //DONE!!!
 	      DoneFlag = 1;
@@ -544,22 +546,36 @@ else {
 //Serial.println(StatusNeu);
      
       if (StatusNeu == 13){
-        Waagezeit_inaktiv = millis();           //Falls StatusÄnderung Reset Waagezeit_inaktiv (für Restart nach bestimmter Inaktivzeit)
+        //Falls StatusÄnderung Reset Waagezeit_inaktiv.
+        //für Restart nach bestimmter Inaktivzeit
+        Waagezeit_inaktiv = millis();
 
       }
-            
-      
-   //-------------- Ende Sonderfall
+//-------------- Ende Sonderfall --------------
    
-//------------------Ende StatusZuweisung--------------------------------------------------
+//-------------- Ende StatusZuweisung ---------
   
-//------------------Begin Motorfahrt / Fahrtkontrolle-------------------------------------
+//-------------- Begin Motorfahrt / Fahrtkontrolle ----------
 
-  if ((StatusChange == true) || (M_Done[1] == false) || (M_Done[2] == false) || (M_Done[3] == false) || (M_Done[4] == false)){
-  MotorFahrt();
+  if (
+      (StatusChange == true) || 
+      (M_Done[1] == false) || 
+      (M_Done[2] == false) || 
+      (M_Done[3] == false) || 
+      (M_Done[4] == false)
+    )
+  {
+      MotorFahrt();
   }
   
-  if ((DoneFlag == 1) && (M_Done[1] == true) && (M_Done[2] == true) && (M_Done[3] == true) && (M_Done[4] == true)){
+  if (
+      (DoneFlag == 1) && 
+      (M_Done[1] == true) && 
+      (M_Done[2] == true) && 
+      (M_Done[3] == true) && 
+      (M_Done[4] == true)
+    )
+  {
     delay(3000);
     static int textWarter = 0; // hilfsmittel fuer erfolgreich sound loop
     textWarter++;
@@ -578,10 +594,17 @@ else {
     delay(1000);
   }
   
+  // Bei Gewichtsänderung MotorWerte 
+  // Beschleunigung, MaximalSpeed, Bremsbeschleunigung aktualisieren
+  if (G_Change == 1) UpdateMotorCharacter();
   
-  if (G_Change == 1) UpdateMotorCharacter();    //Bei Gewichtsänderung MotorWerte (Beschleunigung, MaximalSpeed, Bremsbeschleunigung aktualisieren)
-  
-  if ((M_Done[1] == true) && (M_Done[2] == true) && (M_Done[3] == true) && (M_Done[4] == true)){
+  if (
+      (M_Done[1] == true) && 
+      (M_Done[2] == true) && 
+      (M_Done[3] == true) && 
+      (M_Done[4] == true)
+    )
+  {
 
       //Music  StopChannelsWaagenSound; //Kanal 1 - 3 ausschalten
 //SOUND//-------------------------------------------------------------------
