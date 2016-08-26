@@ -445,6 +445,7 @@ else {
  
 //-----------Begin Statusabfrage (neue SollPositionen für Motoren)------------------- 
 
+      // ERROR PRONE: VERY POSSIBLE: "GewichtSumme + Gewicht[4]" SHOULD HAVE A BRACKET!!!
       if (((GewichtSumme + Gewicht[4] <= G_SchwellwertMin) && (G_Change == 0)) && (StatusNeu != 13)) G_Change = 1; 
       
   
