@@ -1,6 +1,7 @@
 /* In this version we write new sound control code for the new "WAVE Trigger" board. 
- * Besides the Old sound effect. We add 20 text sound tracks to give user better acustic experience on this maschine. 
- * 
+ * Besides the Old sound effect. We add 20 text sound tracks to give user better
+ * acustic experience and more chance to get success on this maschine. 
+ *
  *
  * Written: Tom Hanke & Su Gao
  * Last Edite: 26.AUG 2016
@@ -10,33 +11,38 @@
 SoftwareSerial LEDSerial(20, 21);
 
 //Einstellbare Werte
-const long Waagezeit_Konstante = 30000;//120000; //Wartezeit bei fehlendem Statuswechsel bis Reset
-const long RelativMaxWeg = 12000;   //Maximale Auslenkung Waagen (x2 weil 2 gestaffelte Waagen)
-const long WegMinimum = 3000;       //Minimale Auslenkung Waagen
-const int G_SchwellwertMin = 3;     //Gewichtsänderungen ab Wert * 10g werden registriert
-const int Minimalgewicht = 10;      //wenn Gewicht < Minimalgewicht dann keine Lösung möglich  
-const int G_Max = 250;            //Maximalgewicht (Wert*10g), für Skalierung Beschleunigung, V_Max und Fehlererkennung 
+const long Waagezeit_Konstante = 30000; //Wartezeit bei fehlendem Statuswechsel bis Reset
+const long RelativMaxWeg = 12000;//Maximale Auslenkung Waagen (x2 weil 2 gestaffelte Waagen)
+const long WegMinimum = 3000;    //Minimale Auslenkung Waagen
+const int G_SchwellwertMin = 3;  //Gewichtsänderungen ab Wert * 10g werden registriert
+const int Minimalgewicht = 10;   //wenn Gewicht < Minimalgewicht dann keine Lösung möglich  
+//Maximalgewicht (Wert*10g), für Skalierung Beschleunigung, V_Max und Fehlererkennung 
+const int G_Max = 250;           
 
 // Schwellwerte fuer Audio steuerungen
 const int G_Schwelle1 = 170;
 const int G_Schwelle2 = 200;
 const int G_Schwelle3 = 230;
-int       G_Zustand=0; // 4 -> G>G_Max, 3 -> G>G_Schwelle3, 2 -> G>G_Schwelle2, 1 -> G>G_Schwelle1, 0 -> G>G_Min.
-int       G_WaageMax = 0; // Max. Gewicht von 4 Schale.
+// 2 -> G>G_Schwelle2, 1 -> G>G_Schwelle1, 0 -> G>G_Min
+// 3 -> G>G_Schwelle3, 4 -> G>G_Max
+int G_Zustand = 0; 
+int G_WaageMax= 0; // Max. Gewicht von 4 Schale.
 
 const int G4_Schwelle3 = 100; // Schwellwert fuer Audio steuern
 const int G4_Schwelle2 = 40;
 
 const int G_Max_Calib = 100;
-const int G_MaxChange = 100;      //Bei spontaner Gewichtsänderung größer Wert stoppen die Motoren (Fehlererkennung) 
-const long FaktorGewicht = 200;   //Umrechnung Gewichtsdifferenz auf Weg (GetStatus) (Bei 500g Gewichtsdifferenz maximale Abstände zwischen Schalen)
+// Bei spontaner Gewichtsänderung größer Wert stoppen die Motoren (Fehlererkennung) 
+const int G_MaxChange = 100;
+// Umrechnung Gewichtsdifferenz auf Weg (GetStatus) 
+// Bei 500g Gewichtsdifferenz maximale Abstände zwischen Schalen
+const long FaktorGewicht = 200;
 const float BremsFaktor = 4.;     //Verhältnis Beschleunigung zu Bremse
 const float a_Min = 1.;           //Minimalbeschleunigung in Hz/ms; war 2.
 const float a_Max = 5.;           //Maximalbeschleunigung in Hz/ms; 
 const int Schwellwert = 200;      //zulässige Differenz zur Zielposition
 const int WrongFadeOut = 5000;     //Zeit in ms wie lange Falscher Ton bleibt
 const long MagnetMaxTime = 12000;
-//const long BremsWegMax = 10000; //optional falls reale Geschwindigkeit einbezogen wird
 
 long MagnetOnTime;
 
@@ -44,19 +50,17 @@ boolean ZuSchwer[5] = {false, false, false, false, false};
 int FirstTimeError = 0;
 boolean CalibError[5] = {false, false, false, false, false};
 long CalibErrorPause[5];
-int G_MaxFlag = 0;  //Set when G > G_Max
+int G_MaxFlag = 0;  // Set when G > G_Max
 
 int FirstStart = 1;
 
 //Pin Definition
-
-int chipDriver = 2;                     //RS485 Treiber für Gewichtstransmitter (HalbDuplex)
+int chipDriver = 2;         //RS485 Treiber für Gewichtstransmitter (HalbDuplex)
 int EndSchalterPin[5]={0,40,42,52,50};  //Induktive Endschalter
 int MagnetPin[5]={0,51,53,41,43};       //Zugmagnete
 int NotAusPin = 3;                      //NotTaste vom Kontrollraum aus
 
 //Ende Pin Definition
-
 int NotAusStatus = 0;
 boolean NotAusPressed = false;
 
@@ -65,20 +69,20 @@ int DoneFlag = 0;
 
 boolean GewichtChange4 = false;
 
-int G_Schwellwert = G_SchwellwertMin;      //Gewichtsänderungen ab Wert * 10g werden registriert
+int G_Schwellwert = G_SchwellwertMin; // Gewichtsänderungen ab Wert * 10g werden registriert
 long Waagezeit_inaktiv;   
 
 
-int Durchlauf[5];    //Für Pendelsimulation Anzahl der Durchläufe zur Zielposition
+int Durchlauf[5];    // Für Pendelsimulation Anzahl der Durchläufe zur Zielposition
 
-int MotorOben = 1;  //aktuell höchster Motor zur Übergabe der Fahrtcharakteristika an Motor4  
+int MotorOben = 1;  // aktuell höchster Motor zur Übergabe der Fahrtcharakteristika an Motor4  
 
 float a_Ref;
 float a_Aktuell[5];
 long b_Value[5];
 long a_Value[5];
 
-const long v_Max = 40000; //war 25000
+const long v_Max = 40000;
 
 int EndSchalter[5];
 
@@ -88,35 +92,24 @@ long Position[5]={0,0,0,0,0};
 long PositionAlt[5];
 long PositionSoll[5];
 
-//-----------------Für Berechnung aktuelle Geschwindigkeit und Bremsweg
-/*
-long v_Ref;
-long v_Aktuell[5];
-const long v_Min = 2000;
-long Bremsweg[5];
-float Speed[5];
-long TimeAlt[5];
-long TimeNeu[5];
-*/
-//-----------------
-
 int Richtung[5];
 
 boolean M_Done[5]={true, true, true, true, true};
 
-//-----
-
 long Gewicht[5];
 long GewichtAlt[5];
 
-int GewichtStatus[5];    //Status 0: Normal, Status 1: ausgelesener Wert rubbish, Status 2: Gewicht zu hoch, Status 3: anything else 
+// Status 0: Normal, Status 1: ausgelesener Wert rubbish, 
+// Status 2: Gewicht zu hoch, Status 3: anything else 
+int GewichtStatus[5];
 
 int G_Change = 0;
 
 int WaageBeladen = 0; //Anzahl der Waagen mit Gewicht
 
 float FaktorRichtig;  //Faktor wir Nahe Ergebnis erreicht ist (1 = Perfekt);
-int ZustandFaktor = 0; //Faktor >= 2. Zustand 0, Faktor >= 1. Zustand 1, Faktor < 1. Zustand 2;  
+//Faktor >= 2. Zustand 0, Faktor >= 1. Zustand 1, Faktor < 1. Zustand 2;  
+int ZustandFaktor = 0;
 
 int GewichtSumme; //Summe aller Schalengewichte;
 int Volume4;
@@ -129,14 +122,14 @@ boolean TimeWrongGestartet = false;
 int StatusNeu;
 int StatusAlt; 
 boolean StatusChange = false;
-//-----
 
 long drehwert = 0;
 
 long kippPosition = -45000;
 long kippPosUnten = -80000;
 
-long ErrorDist = -30000;    //wenn Gewicht auf Schaale 4 dann fährt ein Motor um ErrorDistanz nach oben
+//wenn Gewicht auf Schaale 4 dann fährt ein Motor um ErrorDistanz nach oben
+long ErrorDist = -30000;
 
 long PosOben = -35000;
 long PosMitteOben = -45000;
@@ -144,7 +137,7 @@ long PosMitte = -55000;
 long PosMitteUnten = -65000;
 long PosUnten = -75000;
 
-long AnschlagOben = -10000;    //Schutzwert falls Waageschale zu hoch oder zu tief fährt
+long AnschlagOben = -10000;// Schutzwert falls Waageschale zu hoch oder zu tief fährt
 long AnschlagUnten = -93000;
 
 long WegW1, WegW2;
@@ -153,23 +146,13 @@ long StartPosition[5]={0, PosMitteOben, PosMitteUnten, PosMitteUnten, PosMitte};
 
 int soundStatus    = 1; // status var fuer Audio steuern.
 int soundStatus_do = 1; // status tatsaechlich nach sound routine geschickt.
-const long soundbuffer_interval = 4000; // wenn die neu soundStatus Zahl kleiner als die alte ist, warte 2 sekunde.
+// wenn die neu soundStatus Zahl kleiner als die alte ist, warte 2 sekunde.
+const long soundbuffer_interval = 4000;
 int soundStatus_alt= 1; // Die alte sound status fuer die Zeit Puffer.
 unsigned long soundbuffer = 0; // Timing marker.
 boolean soundbuffer_trigger = true; // trigger or not trigger the soundbuffer.
 
 boolean FalscheZutatTrigger = false;
-//------------------------------------------------------------------------------------
-/*
- _______  _______ _________          _______ 
-(  ____ \(  ____ \\__   __/|\     /|(  ____ )
-| (    \/| (    \/   ) (   | )   ( || (    )|
-| (_____ | (__       | |   | |   | || (____)|
-(_____  )|  __)      | |   | |   | ||  _____)
-      ) || (         | |   | |   | || (      
-/\____) || (____/\   | |   | (___) || )      
-\_______)(_______/   )_(   (_______)|/       
-*/                                       
 
 void setup()
 {
@@ -231,18 +214,6 @@ void setup()
     Serial.println("setup finished 2"); 
    
 }
-
-//----------------------------------------------------------------------------------------------------------------------------------
-/*
- _        _______  _______  _______ 
-( \      (  ___  )(  ___  )(  ____ )
-| (      | (   ) || (   ) || (    )|
-| |      | |   | || |   | || (____)|
-| |      | |   | || |   | ||  _____)
-| |      | |   | || |   | || (      
-| (____/\| (___) || (___) || )      
-(_______/(_______)(_______)|/  
-*/
 
 void loop()
 {
