@@ -131,11 +131,11 @@ long kippPosUnten = -80000;
 //wenn Gewicht auf Schaale 4 dann fährt ein Motor um ErrorDistanz nach oben
 long ErrorDist = -30000;
 
-long PosOben = -35000;
-long PosMitteOben = -45000;
-long PosMitte = -55000;
-long PosMitteUnten = -65000;
-long PosUnten = -75000;
+const long PosOben = -35000;
+const long PosMitteOben = -45000;
+const long PosMitte = -55000;
+const long PosMitteUnten = -65000;
+const long PosUnten = -75000;
 
 long AnschlagOben = -10000;// Schutzwert falls Waageschale zu hoch oder zu tief fährt
 long AnschlagUnten = -93000;
@@ -156,18 +156,17 @@ boolean FalscheZutatTrigger = false;
 
 void setup()
 {
-  Serial3.begin(115200); //Gewichtstransmitter
-  Serial2.begin(115200); //Motoren
-  Serial.begin(115200); //Rechner  
-  Serial1.begin(57600); //WAVE Trigger board from Sparkfun
+  Serial3.begin(115200); // Gewichtstransmitter
+  Serial2.begin(115200); // Motoren
+  Serial.begin(115200);  // Rechner  
+  Serial1.begin(57600);  // WAVE Trigger board from Sparkfun
   
-  Serial.println(F("\nI started.\nlast edit: 2016-3-30."));
+  Serial.println(F("\nI started.\nlast edit: 2016-8-26."));
   
-  LEDSerial.begin(38400);  //Softwareserial für LEDs und Musikshield
-
+  LEDSerial.begin(38400); // Softwareserial für LEDs
   
   pinMode(chipDriver,OUTPUT);
-  digitalWrite(chipDriver, LOW);    //LOW setzt RS485 Chip auf Listen 
+  digitalWrite(chipDriver, LOW); //LOW setzt RS485 Chip auf Listen 
 
   pinMode(EndSchalterPin[1], INPUT);
   pinMode(MagnetPin[1],     OUTPUT);
@@ -182,10 +181,10 @@ void setup()
 
   delay(1000);
   
-      MotorHardStop(1);
-      MotorHardStop(2);
-      MotorHardStop(3);
-      MotorHardStop(4);   
+  MotorHardStop(1);
+  MotorHardStop(2);
+  MotorHardStop(3);
+  MotorHardStop(4);
 
   delay(5000);
 //LICHT//-------------------------------------------------------------------  
@@ -211,8 +210,7 @@ void setup()
   delay(50);
 //SOUND//-------------------------------------------------------------------
 
-    Serial.println("setup finished 2"); 
-   
+  Serial.println("setup finished 2"); 
 }
 
 void loop()
