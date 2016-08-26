@@ -215,88 +215,83 @@ void setup()
 
 void loop()
 {
-  
-NotAusStatus = digitalRead(NotAusPin);
+
+  NotAusStatus = digitalRead(NotAusPin);
     
 if ((NotAusStatus == 1)||(NotAusPressed == true)){
-   NotAusHandling(); // in this metod there is no sound handling code. TODO: if we add sound handling, too.
+  // in this metod there is no sound handling code. TODO: if we add sound handling, too.
+   NotAusHandling(); 
 }
  
-else {        //Wenn kein Notausgedrückt ist NormalSchleife 
+else { // Wenn kein Notausgedrückt ist NormalSchleife 
 
-
-//----------Check ob Neukalibirierung erforderlich (Berührung Endschalter oder lange Inaktiv)------------
+//--- Check ob Neukalibirierung erforderlich (Berührung Endschalter oder lange Inaktiv)---
 
             //Endschalter einlesen, wenn Kontakt dann Neukalibrierung  
-
-
   
-            for (int i=1;i<=4;i++){                            
-              EndSchalter[i] = digitalRead(EndSchalterPin[i]);
-            }
-              
-            if ((EndSchalter[1] == 0)||(EndSchalter[2] == 0)||(EndSchalter[3] == 0)||(EndSchalter[4] == 0)) {  //wenn Endschalter Kontakt Neukalibrierung 
-             StartWert = 1; 
-            }
-          
-            if ((millis()-Waagezeit_inaktiv) > Waagezeit_Konstante){
-             StartWert = 1; 
+  for (int i=1;i<=4;i++){                            
+    EndSchalter[i] = digitalRead(EndSchalterPin[i]);
+  }
 
-            }
+  //wenn Endschalter Kontakt Neukalibrierung 
+  if ( 
+    (EndSchalter[1] == 0) ||
+    (EndSchalter[2] == 0) ||
+    (EndSchalter[3] == 0) ||
+    (EndSchalter[4] == 0)
+  ) {  
+    StartWert = 1; 
+  }
+
+  if ((millis()-Waagezeit_inaktiv) > Waagezeit_Konstante){
+    StartWert = 1;
+  }
   
-//--------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
   
 if (StartWert == 1){        //Beim ersten Durchlauf kein G_Max Handling
-      if (FirstStart != 1){
-          G_MaxHandling();  
-          }
-          calibration();
-          soundStatus_alt = 1; //Nach Errorhandling() auskommentiert und direkt calibration() eingehen.
-          if (FirstStart == 1){
-          FirstStart = 0;
-          }
-      }
-      
+  if (FirstStart != 1){
+    G_MaxHandling();  
+  }
+  calibration();
+  soundStatus_alt = 1; //Nach Errorhandling() auskommentiert und direkt calibration() eingehen.
+  if (FirstStart == 1){
+    FirstStart = 0;
+  }
+}
     
 else {
   
- //------------Gewicht einlesen und Gewichtsänderung feststellen-------------------------------------------------
+ // ------------ Gewicht einlesen und Gewichtsänderung feststellen ---
   StatusChange = false; 
   
-  G_Change = 0;          //Gewichtswechsel-Flag auf NULL setzen
+  G_Change = 0; // Gewichtswechsel-Flag auf NULL setzen
   WaageBeladen = 0;
   G_WaageMax = 0; // reset.
-  for (int j=1;j<=4;j++){
+  for (int j=1;j<=4;j++) {
     weightRead(j);//Gewicht einlesen
     delay(5);//Pause zum nächsten Transmitter
     
     if (Gewicht[j] < 0){Gewicht[j] = 0;}
     
-    //G_Schwellwert = G_SchwellwertMin + (Gewicht[j]/20.);
-  
     if (Gewicht[j] > G_Max){
-        ZuSchwer[j] = true;
-    }
-    else {
+      ZuSchwer[j] = true;
+    } else {
       ZuSchwer[j] = false;      
     }
      
-    if (Gewicht[j]>G_SchwellwertMin){  //Music
-        WaageBeladen += 1;             //Wenn Gewicht auf Waage Variable + 1;
-       }                               //Music
+    if (Gewicht[j]>G_SchwellwertMin){ //Music
+      WaageBeladen += 1;              //Wenn Gewicht auf Waage Variable + 1;
+    }                                 
    
-   if ((j==1)||(j==4)){
-   if(Gewicht[1] > G_WaageMax){
-     G_WaageMax = Gewicht[1];
-   }
-   }
-   else if(Gewicht[j] * 2 > G_WaageMax){
-     G_WaageMax = Gewicht[j] * 2;
-   }
-   
-   
-   
-   }
+    if ((j==1)||(j==4)){
+      if(Gewicht[1] > G_WaageMax){
+        G_WaageMax = Gewicht[1];
+      }
+    } else if ( Gewicht[j] * 2 > G_WaageMax ){
+       G_WaageMax = Gewicht[j] * 2;
+    }
+  }
    
   if(G_WaageMax > G_Schwelle3){
     G_Zustand = 3;
@@ -311,39 +306,40 @@ else {
     G_Zustand = 0;
   }
 
-
-  if ((ZuSchwer[1] == true)||(ZuSchwer[2] == true)||(ZuSchwer[3] == true)||(ZuSchwer[4] == true)){
+  if (
+      (ZuSchwer[1] == true) ||
+      (ZuSchwer[2] == true) ||
+      (ZuSchwer[3] == true) ||
+      (ZuSchwer[4] == true)
+    ){
     sound(9); // "Alles raus"
     G_Zustand = 4;
     //Errorhandling(); 
     StartWert = 1;
     Serial.println("Zuschwer gewesen.");
-  }
-
-  else{
-     if (FirstTimeError == 2){
-        FirstTimeError = 0;
-//LICHT//-------------------------------------------------------------------
-        LEDSerial.print("lt A1500 B1500 C1500 D1500;");
-        //LEDSerial.print("kerze;");
-        LEDSerial.print("lt Ka Kb Kc Kd;");        
-     }
+  } else {
+    if (FirstTimeError == 2){
+      FirstTimeError = 0;
+    //LICHT//-------------------------------------------------------------------
+      LEDSerial.print("lt A1500 B1500 C1500 D1500;");
+      LEDSerial.print("lt Ka Kb Kc Kd;");        
+    }
      
-     if (Gewicht[4] > G_SchwellwertMin + 2){
-        if (FalscheZutatTrigger == false){
-          FalscheZutatTrigger = true;
-          LEDSerial.print("lt A0 B0 C0 D3000;");
-          LEDSerial.print("lt KD;");
-        }
-     } 
-     else {
-        if (FalscheZutatTrigger == true){
-        FalscheZutatTrigger = false;
-        LEDSerial.print("lt A1500 B1500 C1500 D1500;");
-        LEDSerial.print("kerze;");
-        LEDSerial.print("lt Ka Kb Kc Kd;"); 
-        }
-     }
+    if (Gewicht[4] > G_SchwellwertMin + 2){
+      if (FalscheZutatTrigger == false){
+        FalscheZutatTrigger = true;
+        LEDSerial.print("lt A0 B0 C0 D3000;");
+        LEDSerial.print("lt KD;");
+      }
+    } 
+    else {
+      if (FalscheZutatTrigger == true){
+      FalscheZutatTrigger = false;
+      LEDSerial.print("lt A1500 B1500 C1500 D1500;");
+      LEDSerial.print("kerze;");
+      LEDSerial.print("lt Ka Kb Kc Kd;"); 
+      }
+    }
      
           
      
@@ -548,7 +544,6 @@ else {
    
 //------------------Ende StatusZuweisung--------------------------------------------------
   
-
 //------------------Begin Motorfahrt / Fahrtkontrolle-------------------------------------
 
   if ((StatusChange == true) || (M_Done[1] == false) || (M_Done[2] == false) || (M_Done[3] == false) || (M_Done[4] == false)){
@@ -624,7 +619,7 @@ else {
     } 
   }
   
-  if(soundStatus < soundStatus_alt){      //TODO: do the sound buffer.
+  if(soundStatus < soundStatus_alt){ // TODO: do the sound buffer.
     if(soundbuffer_trigger == true){
       soundbuffer = millis();
       soundbuffer_trigger = false;
@@ -638,28 +633,24 @@ else {
     else{
       soundStatus_do = soundStatus_alt;
     }
-  } //else wuerde das soundStatus direkt hingeschickt.
+  } // else wuerde das soundStatus direkt hingeschickt.
   else{    
-    soundStatus_alt = soundStatus; //Wenn die Zahl von kleine nach grosse geht, sollte soundStatus_alt immer akualisiert wird.
+    // Wenn die Zahl von kleine nach grosse geht, 
+    // sollte soundStatus_alt immer akualisiert wird.
+    soundStatus_alt = soundStatus;
     soundStatus_do = soundStatus;
   }
   
-  
-  //Serial.print(F("soundStatus_alt: "));
-  //Serial.print(soundStatus_alt);
-  //Serial.print(F("soundStatus_do: "));
-  //Serial.print(soundStatus_do);
-  //Serial.print(F("soundStatus: "));
-  //Serial.println(soundStatus);
   Serial.println(soundStatus_do);
   sound(soundStatus_do); //TODO: Give this method the correct argument.
-  }//--------------------Ende Schleife wenn Maximalgewicht nicht ueberschritten
 
-}//----------------------Ende Normalschleife (falls kein Endschalter gedrückt) 
+  } // --- Ende Schleife wenn Maximalgewicht nicht ueberschritten
 
-}//----------------------Ende NotAus Else 
+} // --- Ende Normalschleife (falls kein Endschalter gedrückt) 
+
+} // --- Ende NotAus Else 
    
-} //---------------------End of loop
+} // --- End of loop
 
 
 
