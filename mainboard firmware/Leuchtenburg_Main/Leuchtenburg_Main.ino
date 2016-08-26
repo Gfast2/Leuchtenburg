@@ -1,8 +1,9 @@
-/* Code derived from "Leuchtenburg_2015_04_24". 
- * In this version we write new sound control code for the new "WAVE Trigger" board. Besides the Old sound effect. We add 20 text sound tracks to give user better acustic experience on this maschine.
+/* In this version we write new sound control code for the new "WAVE Trigger" board. 
+ * Besides the Old sound effect. We add 20 text sound tracks to give user better acustic experience on this maschine. 
+ * 
  *
  * Written: Tom Hanke & Su Gao
- * Last Edite: 14.Mai 2015
+ * Last Edite: 26.AUG 2016
  */
 
 #include <SoftwareSerial.h>
