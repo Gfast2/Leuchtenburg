@@ -348,35 +348,43 @@ else {
    
    G_Schwellwert = G_SchwellwertMin + (GewichtSumme /20.);
    
-   if ((GewichtSumme > 35) && ((Gewicht[1] != 0) && (Gewicht[2] != 0) && (Gewicht[3] != 0) && (Gewicht[4] < G_SchwellwertMin))){ 
-   FaktorRichtig = (abs(((GewichtSumme / 2.) / Gewicht[1])-1) + abs(((GewichtSumme / 4.) / Gewicht[2])-1) + abs(((GewichtSumme / 4.) / Gewicht[3])-1));
-   //FaktorRichtig = FaktorRichtig / 3.;
-   }
+   if (
+    (GewichtSumme > 35) && 
+    (Gewicht[1] != 0) && 
+    (Gewicht[2] != 0) && 
+    (Gewicht[3] != 0) && 
+    (Gewicht[4] < G_SchwellwertMin)
+    ){ 
+      FaktorRichtig = abs(((GewichtSumme / 2.) / Gewicht[1])-1) 
+      + abs(((GewichtSumme / 4.) / Gewicht[2])-1) 
+      + abs(((GewichtSumme / 4.) / Gewicht[3])-1);
+     //FaktorRichtig = FaktorRichtig / 3.;
+    }
    else {
      FaktorRichtig = 2.;
      //Channel4 leise
      }
-     
-   //Serial.print("Faktor: ");
-   //Serial.print(FaktorRichtig);
   
-   if (((FaktorRichtig <= 0.6)&&(GewichtSumme > 10)) && (Gewicht[4] < G_SchwellwertMin)){  //Fast Richtig
-      if (FaktorWarRichtig == false){                   
-      //LEDSerial.print("sd D" + String(Volume4) + ";");
-//SOUND//------------------------------------------------------------------- 
-      //LEDSerial.print("sd D10 E90;"); //turn on channel four, turn down channel five.
-      /*
-      volumnTrack(34,-5);  // D
-      volumnTrack(35,-70); // E
-      */
-      //soundAmb(2);
-      FaktorWarRichtig = true;
-      TimeWrongGestartet = false;
-      //Serial.println("Faktor kleiner 1!");
+   if (
+        (
+          (FaktorRichtig <= 0.6) && 
+          (GewichtSumme > 10)
+        ) && 
+        (Gewicht[4] < G_SchwellwertMin)
+      ){  //Fast Richtig
+        if (FaktorWarRichtig == false){                   
+  //SOUND//------------------------------------------------------------------- 
+          /*
+          volumnTrack(34,-5);  // D
+          volumnTrack(35,-70); // E
+          */
+          //soundAmb(2);
+          FaktorWarRichtig = true;
+          TimeWrongGestartet = false;
+          //Serial.println("Faktor kleiner 1!");
+        }
       }
-   }
-
-   else if (FaktorWarRichtig == true){   //nach Fast Richtig wieder falsch
+      else if (FaktorWarRichtig == true){   //nach Fast Richtig wieder falsch
       FaktorWarRichtig = false; 
      //LEDSerial.print("sd D" + String(Volume4) + ";");
 //SOUND//-------------------------------------------------------------------
