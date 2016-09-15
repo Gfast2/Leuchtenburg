@@ -1,4 +1,4 @@
-void Errorhandling(){
+void Errorhandling() {
   if (FirstTimeError == 0) {
     FirstTimeError = 1;
     //LICHT//-------------------------------------------------------------------
@@ -23,7 +23,7 @@ void Errorhandling(){
   }
 }
 
-void NotAusHandling(){
+void NotAusHandling() {
   delay(10);
   NotAusStatus = digitalRead(NotAusPin);
   if (NotAusStatus == 1) {
@@ -57,7 +57,7 @@ void G_MaxHandling() {
     StartWert = 1;
   } else {
     G_MaxFlag = 0;
-  }  
+  }
 }
 
 void CheckForError(int j)

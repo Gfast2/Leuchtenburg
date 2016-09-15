@@ -1,86 +1,86 @@
-void MotorStart(int MotorID){
-     if (M_Done[MotorID] == true){
-       String MotorIDFS = String(MotorID); 
-       Serial2.println("#"+MotorIDFS+"A");
-       delay(10);
-       while (Serial2.read() >= 0); //mySerial Buffer leeren
-     M_Done[MotorID] = false;
-     }
-}
-
-//------------------------------------------------------------------
-
-void MotorStop(int MotorID){
-     if (M_Done[MotorID] == false){
-       String MotorIDFS = String(MotorID);      
-       Serial2.println("#"+MotorIDFS+"S1");
-       delay(10);
-       while (Serial2.read() >= 0); //mySerial Buffer leeren
-       M_Done[MotorID] = true;
-     }
-}
-
-//------------------------------------------------------------------
-
-
-void MotorHardStop(int MotorID){
-     if (M_Done[MotorID] == false){
-       String MotorIDFS = String(MotorID);      
-       Serial2.println("#"+MotorIDFS+"S0");
-       delay(10);
-       while (Serial2.read() >= 0); //mySerial Buffer leeren
-       M_Done[MotorID] = true;
-     }
-}
-
-//------------------------------------------------------------------
-
-void SetMotorRichtung(int MotorID, int RichtungM){
-    Serial2.println("#"+String(MotorID)+"d"+String(RichtungM));
+void MotorStart(int MotorID) {
+  if (M_Done[MotorID] == true) {
+    String MotorIDFS = String(MotorID);
+    Serial2.println("#" + MotorIDFS + "A");
     delay(10);
     while (Serial2.read() >= 0); //mySerial Buffer leeren
-    Richtung[MotorID] = RichtungM;
-}
-
-//------------------------------------------------------------------
-
-void SetMotor_a(int MotorID, long a_Value){
-     Serial2.println("#"+String(MotorID)+"b"+String(a_Value));
-     delay(10);   
-}
-
-
-//------------------------------------------------------------------
-
-void SetMotor_vMax(int MotorID, long vMax_Value){
-     Serial2.println("#"+String(MotorID)+"o"+String(vMax_Value));
-     delay(10);
-}
-
-//------------------------------------------------------------------
-
-void notAus() {
-  while(Serial.available()) {
-    char n = Serial.read();
-    if (n == 'a'){
-      Serial2.println("#*S1");
-      delay(20);
-    } 
+    M_Done[MotorID] = false;
   }
 }
 
 //------------------------------------------------------------------
 
-void SetMotorStartValues(){
-  
+void MotorStop(int MotorID) {
+  if (M_Done[MotorID] == false) {
+    String MotorIDFS = String(MotorID);
+    Serial2.println("#" + MotorIDFS + "S1");
+    delay(10);
+    while (Serial2.read() >= 0); //mySerial Buffer leeren
+    M_Done[MotorID] = true;
+  }
+}
+
+//------------------------------------------------------------------
+
+
+void MotorHardStop(int MotorID) {
+  if (M_Done[MotorID] == false) {
+    String MotorIDFS = String(MotorID);
+    Serial2.println("#" + MotorIDFS + "S0");
+    delay(10);
+    while (Serial2.read() >= 0); //mySerial Buffer leeren
+    M_Done[MotorID] = true;
+  }
+}
+
+//------------------------------------------------------------------
+
+void SetMotorRichtung(int MotorID, int RichtungM) {
+  Serial2.println("#" + String(MotorID) + "d" + String(RichtungM));
+  delay(10);
+  while (Serial2.read() >= 0); //mySerial Buffer leeren
+  Richtung[MotorID] = RichtungM;
+}
+
+//------------------------------------------------------------------
+
+void SetMotor_a(int MotorID, long a_Value) {
+  Serial2.println("#" + String(MotorID) + "b" + String(a_Value));
+  delay(10);
+}
+
+
+//------------------------------------------------------------------
+
+void SetMotor_vMax(int MotorID, long vMax_Value) {
+  Serial2.println("#" + String(MotorID) + "o" + String(vMax_Value));
+  delay(10);
+}
+
+//------------------------------------------------------------------
+
+void notAus() {
+  while (Serial.available()) {
+    char n = Serial.read();
+    if (n == 'a') {
+      Serial2.println("#*S1");
+      delay(20);
+    }
+  }
+}
+
+//------------------------------------------------------------------
+
+void SetMotorStartValues() {
+
   Serial2.println("#*S0");
   delay(10);
   Serial2.println("#*i60"); //set motors' performance, from 2016-3-2 set it from 40% to 65% on the vorne Waagen
   delay(10);
-  
+
   Serial2.println("#1i65"); // Stelle nur die erste Motor, programmiert nur fuer die vorne Waage
   delay(20);
-  
+
   Serial2.println("#*S"); //motor stop
   delay(10);
   Serial2.println("#*q0"); //Drehencoder direction exchange
@@ -101,18 +101,18 @@ void SetMotorStartValues(){
   delay(10);
   Serial2.println("#*d1");//'0' - links, '1' - rechts
 
-  for (int i=1;i<=4;i++){
-  M_Done[i] = true;
-  Richtung[i] = 1;
+  for (int i = 1; i <= 4; i++) {
+    M_Done[i] = true;
+    Richtung[i] = 1;
   }
   //delay(300000);
-/*
-  while(Serial2.available()){
-    Serial.print(Serial2.read());
-  } 
-*/
+  /*
+    while(Serial2.available()){
+      Serial.print(Serial2.read());
+    }
+  */
 
   while (Serial2.read() >= 0); //mySerial Buffer leeren
-  
+
 }
 

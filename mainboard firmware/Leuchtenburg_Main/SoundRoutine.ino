@@ -8,16 +8,16 @@
  */
 
 int dauerMap[21] = {
-  3, 5, 6, 
-  10, 2, 
-  2, 4, 4, 
-  9, 3, 
-  5, 7, 5/*einigt*/, 
-  6, 6, 6, 8/*einigt*/, 
+  3, 5, 6,
+  10, 2,
+  2, 4, 4,
+  9, 3,
+  5, 7, 5/*einigt*/,
+  6, 6, 6, 8/*einigt*/,
   12, 2, 4 // *enigt means there are two sound in the same position from the RAW sound data. The this time long means the longest of the two.
 }; //Unit:Sec. track the length of each sentence.
 
-enum soundName {  //in Gruppen nach Inhalt sortiert 
+enum soundName {  //in Gruppen nach Inhalt sortiert
   s1A = 1, s1B, s1C,
   s2A, s2B,
   s3A, s3B, s3C,
@@ -128,7 +128,7 @@ boolean handleSoundPriority(int newSound) { // from s4A to s5c is from 009 to 01
     songBuffer[0] = newSound;
     return true;
   }
-  else if (said == 0){ //only when the programm first time started, said equal to 1.
+  else if (said == 0) { //only when the programm first time started, said equal to 1.
     songBuffer[0] = newSound;
     return true;
   }
@@ -239,7 +239,7 @@ void handleNewSound(int newSound) {
   //pl(newSound);
   if (newSound == 5) { //if stop all playing stopped.
     //pl("newSound=5, stop play all songs");
-    stopPlaying();    
+    stopPlaying();
     finishTalk = true;
     songBuffer[0] = NULL;
     songBuffer[1] = NULL; //TODO: handle the situation when buffer is NULL.
@@ -282,7 +282,7 @@ void handleNewSound(int newSound) {
   else
     trigger4 = false;
 
-  if(newSound == 1){
+  if (newSound == 1) {
     trigger1 = true;
     trigger1Timer = millis();
   }
@@ -306,7 +306,7 @@ void handleGroup4() {
 }
 
 // It has the same functionality as handleGroup1(). Tha means, if in Group1 sound mode more than 20 sec. The one of three sound in group1 will read out one time.
-void handleGroup1(){
+void handleGroup1() {
   if (trigger1 == true) {
     if (millis() - trigger1Timer > INTERVAL1) {
       say(1); //first song of group4, number 9, It ignore the sound buffer. But it's more than 20 Sec. It should not have any not played song in the buffer.
@@ -380,7 +380,7 @@ void sound(int soundState) {
     //pl("freshSound(int) is true");
     boolean handled34 = handleGroup34(soundState);
     boolean handled5  = handleGroup5(soundState);
-    if (!handled34 && !handled5){
+    if (!handled34 && !handled5) {
       //pl("new song handled.");
       handleNewSound(soundState); //When there is new songs comes in. Process new songs and play the next song if it is the correct time point.
     }
@@ -393,8 +393,8 @@ void sound(int soundState) {
   handleGroup1();
 
   //pt("songBuffer[0] & songBuffer[1]: ");
-  //pt(songBuffer[0]);  
-  //pt(" ");  
+  //pt(songBuffer[0]);
+  //pt(" ");
   //pl(songBuffer[1]);
 }
 
@@ -403,7 +403,7 @@ void sound(int soundState) {
 void soundAmb(int amb){
   switch(amb){
     case 1:
-    
+
       volumnTrack(31,-70);  // A
       volumnTrack(32,-70);  // B
       volumnTrack(33,-70);  // C
@@ -427,17 +427,17 @@ void soundAmb(int amb){
         trackFade(i,-70,4000);
       break;
     case 5:
-      trackFade(33,-10,3000);  
+      trackFade(33,-10,3000);
       for(int i=31; i<33; i++)
         trackFade(i,-5,3000);
-        
+
       break;
     case 6:
       for(int i=31; i<33; i++)
         trackFade(i,-5,2000);
       trackFade(33,-70,3000);
       break;
-    case 7:    
+    case 7:
       trackFade(31,-5,2000);
       for(int i=32; i<34; i++)
         trackFade(i,-70,3000);
@@ -449,28 +449,28 @@ void soundAmb(int amb){
     default:
       //Serial.println(F("soundAmb(int) has a unguilty value"));
   }
-  
+
 }
 */
 
 //simplified code notize.Strings in "F(String)" will be not loaded directely in memonry, only when they is needed. In order to save memonry.
-void pl(String note){
+void pl(String note) {
   //Serial.println(F(note));
   Serial.println(note);
 }
 
-void pl(int note){
+void pl(int note) {
   //Serial.println(F(note));
   Serial.println(note);
 }
 
 //the same as pl(Sring). But without a '\n' at the end of it.
-void pt(String note){
+void pt(String note) {
   Serial.print(note);
   //printf_P(PSTR(note));
 }
 
-void pt(int note){
+void pt(int note) {
   Serial.print(note);
   //printf_P(PSTR(note));
 }

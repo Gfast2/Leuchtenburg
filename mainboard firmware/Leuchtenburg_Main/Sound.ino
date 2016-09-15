@@ -121,7 +121,7 @@ void ampEnable(boolean on) {
   som();
   Serial1.write(0x06); //indicate the total number of bytes in the message
   Serial1.write(0x09); // message code, range of 0x00 to 0x7f, here is CONTROL_TRACK
-  Serial1.write(on == true ? 1 : 0); 
+  Serial1.write(on == true ? 1 : 0);
   eom();
 }
 
