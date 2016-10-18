@@ -1,12 +1,20 @@
+/*
+ *  Module for weight reading, parsing and basic command for weight transmitter control
+ */ 
+
+
 void weightRead(int TransmitterNum) {
+
 	int SignGewicht[5];
 	int waageID = TransmitterNum;
 
-	digitalWrite(chipDriver, HIGH); //send the command to weight transmitter asking the "netto weight"
+	//send the command to weight transmitter asking the "netto weight"
+	//to send the command, on Baud 38400 takes nearly 2ms, than wait 1 to 2ms come answer.
+	digitalWrite(chipDriver, HIGH);
 	switch (waageID) {
 	case 1:
 		//the XOR CRC code (here is 75) should be calculated.
-		Serial3.write("$01t75\r"); //to send the command, on Baud 38400 takes nearly 2ms, than wait 1 to 2ms come answer.
+		Serial3.write("$01t75\r"); 
 		break;
 	case 2:
 		Serial3.write("$02t76\r");
@@ -23,12 +31,12 @@ void weightRead(int TransmitterNum) {
 	delay(1); //wait till the command to be totally send (in 115200 baud it should be 1 misc, 38400 c.a. 3 misc)
 	digitalWrite(chipDriver, LOW); // receive the command from weight transmitter
 
-	//parsing the answer
 	/*
-	* there should be three different possible answer from weight transmitter Seite.37
-	* 1. Normal answer: &aaxxxxxxt\ckckCR a:address of WT, CK:CRC code
-	* 2. Error answer: &aassO-Lst\ckck or &aassO-Fst\ckck s:space(32 ASCII) to indicate value can't be read
-	**/
+	 * parsing the answer
+	 * there should be three different possible answer from weight transmitter Seite.37
+	 * 1. Normal answer: &aaxxxxxxt\ckckCR a:address of WT, CK:CRC code
+	 * 2. Error answer: &aassO-Lst\ckck or &aassO-Fst\ckck s:space(32 ASCII) to indicate value can't be read
+	 **/
 	while (Serial3.available() > 0) {
 		if (Serial3.read() == 38) { //'&'
 			waageID = ((Serial3.read() - 48) * 10);          //10er Stelle ID

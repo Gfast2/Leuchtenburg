@@ -4,7 +4,7 @@
  *
  *
  * Written: Tom Hanke & Su Gao
- * Last Edite: 26.AUG 2016
+ * Last Edite: 18 OCT. 2016
  */
 
 #include <SoftwareSerial.h>
@@ -56,8 +56,8 @@ int FirstStart = 1;
 
 //Pin Definition
 const int chipDriver = 2; // RS485 Treiber für Gewichtstransmitter (HalbDuplex)
-const int EndSchalterPin[5] = {0, 40, 42, 52, 50}; //Induktive Endschalter
-const int MagnetPin[5] = {0, 51, 53, 41, 43}; // Zugmagnete
+const int EndSchalterPin[5] = {0, 40, 42, 52, 50};    //Induktive Endschalter
+const int MagnetPin[5] = {0, 51, 53, 41, 43};         // Zugmagnete
 const int NotAusPin = 3; // const NotTaste vom Kontrollraum aus
 
 //Ende Pin Definition
@@ -100,8 +100,16 @@ boolean M_Done[5] = {true, true, true, true, true};
 long Gewicht[5];
 long GewichtAlt[5];
 
-// Status 0: Normal, Status 1: ausgelesener Wert rubbish,
-// Status 2: Gewicht zu hoch, Status 3: anything else
+// Status 0: Normal, 
+// Status 1: ausgelesener Wert rubbish,
+// Status 2: Gewicht zu hoch, 
+// Status 3: anything else
+enum {
+  NORMAL=0,
+  RUBBISH=1,
+  ZUHOCH=2,
+  OTHERS=3
+};
 int GewichtStatus[5];
 
 int G_Change = 0;
@@ -132,14 +140,14 @@ long kippPosUnten = -80000;
 //wenn Gewicht auf Schaale 4 dann fährt ein Motor um ErrorDistanz nach oben
 long ErrorDist = -30000;
 
-const long PosOben = -35000;
+const long PosOben =      -35000;
 const long PosMitteOben = -45000;
-const long PosMitte = -55000;
-const long PosMitteUnten = -65000;
-const long PosUnten = -75000;
+const long PosMitte =     -55000;
+const long PosMitteUnten =-65000;
+const long PosUnten =     -75000;
 
-long AnschlagOben = -10000;// Schutzwert falls Waageschale zu hoch oder zu tief fährt
-long AnschlagUnten = -93000;
+long AnschlagOben =   -10000;// Schutzwert falls Waageschale zu hoch oder zu tief fährt
+long AnschlagUnten =  -93000;
 
 long WegW1, WegW2;
 
@@ -685,19 +693,3 @@ void loop()
   } // --- Ende NotAus Else
 
 } // --- End of loop
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
