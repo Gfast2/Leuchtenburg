@@ -2,6 +2,9 @@
 
 Main / Slave board firmware for Project in Museum Leuchtenburg
 
+![project photo1](README/1_Leuchtenburg.jpg)
+![project photo2](README/2_Leuchtenburg.jpg)
+
 ## Bug fix:
 
 ### 2016-3-30: 
